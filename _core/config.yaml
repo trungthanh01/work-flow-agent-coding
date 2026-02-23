@@ -1,0 +1,55 @@
+tool_name: workflow-agent-coding
+tool_kind: agentic-second-brain-framework
+
+# Nguồn sự thật cho cấu trúc vault + quy ước.
+# Framework files được track Git; user content mặc định không track (xem .gitignore).
+
+framework:
+  version_file: FRAMEWORK_VERSION
+  allowlist_dirs:
+    - _core
+    - 00_moc
+    - _templates
+    - docs
+    - scripts
+    - .claude
+    - .cursor
+    - AGENTS.md
+    - README.md
+    - SETUP.md
+    - PRD.md
+    - LICENSE
+    - CHANGELOG.md
+
+content:
+  # Các thư mục này mặc định không track Git.
+  roots:
+    - 01_memory
+    - 01_daily
+    - 02_problems
+    - 03_rules/user
+    - 04_lessons
+
+paths:
+  moc:
+    main: 00_moc/00_main-moc.md
+    memory: 00_moc/01_moc-memory-system.md
+    problems: 00_moc/02_moc-problems-and-lessons.md
+    tooling: 00_moc/03_moc-tooling-and-skills.md
+
+  templates:
+    memory_entry: _templates/memory-entry.md
+    problem: _templates/problem.md
+    lesson: _templates/lesson.md
+    index: _templates/index.md
+
+indexing:
+  # Anchor để tool/script insert entry (fail-closed nếu không có).
+  anchor_heading: "## Danh sách (có nhúng nội dung)"
+  include_transclusion_default: true
+
+conventions:
+  filename:
+    # yyyy-mm-dd + slug để tránh đụng.
+    pattern: "{yyyy}-{mm}-{dd}-{slug}.md"
+

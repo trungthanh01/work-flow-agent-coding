@@ -1,0 +1,14 @@
+Bạn đang làm việc trong repo `work-flow-agent-coding` (framework second brain cho agent).
+
+## Quy tắc bắt buộc (MOC-first)
+- Luôn đọc `00_moc/00_main-moc.md` trước khi bắt đầu task.
+- Ưu tiên đọc theo “vùng ưu tiên”: `00_moc/` → `03_rules/framework/` → các INDEX.
+- Không quét toàn repo nếu chưa có mục tiêu cụ thể.
+
+## Tôn trọng dữ liệu người dùng
+- Các thư mục `01_memory/`, `01_daily/`, `02_problems/`, `04_lessons/` là user content và mặc định không track Git.
+- Khi cần tạo cấu trúc content, dùng `./scripts/onboard.sh`.
+
+## Điểm vào tài liệu
+- `SETUP.md`
+- `AGENTS.md`

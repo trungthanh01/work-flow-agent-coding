@@ -1,0 +1,21 @@
+- **Ngày/phiên**: {{date}}
+- **Repo nguồn**: {{repo}}
+- **Bạn đang giải quyết gì** (1 câu): {{what}}
+- **Đã làm xong**:
+  - {{done_1}}
+  - {{done_2}}
+  - {{done_3}}
+- **Phát hiện quan trọng**:
+  - {{insight_1}}
+  - {{insight_2}}
+  - {{insight_3}}
+- **Quyết định chốt**: {{decision}}
+- **Việc còn dang dở**:
+  - {{todo_1}}
+  - {{todo_2}}
+  - {{todo_3}}
+- **Điểm cần tránh lần sau**: {{avoid}}
+- **Đường dẫn cần nhớ**:
+  - {{path_1}}
+  - {{path_2}}
+  - {{path_3}}

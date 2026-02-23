@@ -1,22 +1,50 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
+# Obsidian (optional)
+.obsidian/workspace*
+.obsidian/cache/
+.obsidian/plugins/
+.obsidian/community-plugins.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
 .vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-file
-*.flf
-#Test results file
-TestResults.xml
+.idea/
+
+# Logs / temp / backups
+*.log
+*.tmp
+*.bak
+*~
+nohup.out
+_archive/_updates/
+
+# ------------------------------------------------------------
+# User content (default: NOT tracked)
+# Keep directory structure via .gitkeep.
+# ------------------------------------------------------------
+
+# 01_memory
+01_memory/*
+!01_memory/.gitkeep
+
+# 01_daily
+01_daily/*
+!01_daily/.gitkeep
+
+# 02_problems
+02_problems/*
+!02_problems/.gitkeep
+!02_problems/frontend/
+02_problems/frontend/*
+!02_problems/frontend/.gitkeep
+!02_problems/backend/
+02_problems/backend/*
+!02_problems/backend/.gitkeep
+
+# 03_rules: framework is tracked; user rules are not
+03_rules/user/*
+!03_rules/user/.gitkeep
+
+# 04_lessons
+04_lessons/*
+!04_lessons/.gitkeep
