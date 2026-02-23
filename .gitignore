@@ -10,6 +10,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Node (MCP server)
+node_modules/
+.pnpm-store/
+
 # Logs / temp / backups
 *.log
 *.tmp

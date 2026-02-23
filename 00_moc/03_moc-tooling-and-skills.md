@@ -13,6 +13,18 @@
 
 ---
 
+## 3) MCP tools (khi bật trong Cursor)
+MCP server nằm ở `mcp/` và expose tools:
+- `wfac_get_moc`
+- `wfac_append_memory`
+- `wfac_capture_problem`
+- `wfac_extract_lesson`
+- `wfac_suggest_links`
+- `wfac_research_solution`
+- `wfac_health_check`
+
+---
+
 ## 2) Nguyên tắc an toàn
 - Fail-closed khi thiếu anchor trong index (không ghi “rác”)
 - Chỉ đọc/ghi trong allowlist của `_core/config.yaml`

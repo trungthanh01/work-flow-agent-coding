@@ -1,0 +1,17 @@
+{
+  "name": "workflow-agent-coding-mcp",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Local stdio MCP server for workflow-agent-coding",
+  "scripts": {
+    "selftest": "node server.mjs --selftest",
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "yaml": "^2.8.1",
+    "zod": "^3.25.76"
+  }
+}
+

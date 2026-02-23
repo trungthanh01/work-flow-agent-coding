@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "workflow-agent-coding": {
+      "command": "node",
+      "args": [
+        "/ABSOLUTE/PATH/TO/work-flow-agent-coding/mcp/server.mjs"
+      ],
+      "env": {
+        "WFAC_VAULT_ROOT": "/ABSOLUTE/PATH/TO/work-flow-agent-coding"
+      }
+    }
+  }
+}
+

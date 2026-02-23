@@ -19,6 +19,7 @@ Nó sẽ tạo (user content):
 ## 2) Dùng với Cursor
 - Mở folder repo trong Cursor
 - Khi bắt đầu task, agent cần đọc: `00_moc/00_main-moc.md`
+- (Tuỳ chọn) Bật MCP tools: xem `mcp/README.md`
 
 ## 3) Dùng với Claude Code
 - Mở repo trong Claude Code

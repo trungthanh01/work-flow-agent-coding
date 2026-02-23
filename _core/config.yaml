@@ -11,6 +11,7 @@ framework:
     - 00_moc
     - _templates
     - docs
+    - mcp
     - scripts
     - .claude
     - .cursor
@@ -36,6 +37,9 @@ paths:
     memory: 00_moc/01_moc-memory-system.md
     problems: 00_moc/02_moc-problems-and-lessons.md
     tooling: 00_moc/03_moc-tooling-and-skills.md
+
+  memory:
+    default: 01_memory/MEMORY.md
 
   templates:
     memory_entry: _templates/memory-entry.md
