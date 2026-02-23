@@ -15,13 +15,8 @@
 
 ## 3) MCP tools (khi bật trong Cursor)
 MCP server nằm ở `mcp/` và expose tools:
-- `wfac_get_moc`
-- `wfac_append_memory`
-- `wfac_capture_problem`
-- `wfac_extract_lesson`
-- `wfac_suggest_links`
-- `wfac_research_solution`
-- `wfac_health_check`
+- Tên ngắn (khuyến nghị): `get_moc`, `append_memory`, `capture_problem`, `extract_lesson`, `suggest_links`, `research_solution`, `health_check`
+- Alias cũ (giữ tương thích): `wfac_*`
 
 ---
 

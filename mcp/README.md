@@ -39,11 +39,16 @@ Tạo `<repo>/.cursor/mcp.json` và copy mẫu như trên (sửa path cho đúng
 ---
 
 ## Tools
-- `wfac_get_moc`: đọc MOC (hoặc liệt kê headings)
-- `wfac_append_memory`: append vào `01_memory/MEMORY.md`
-- `wfac_capture_problem`: tạo problem note (FE/BE) + update `INDEX.md`
-- `wfac_extract_lesson`: rút lesson từ problem + update lessons index
-- `wfac_suggest_links`: gợi ý wiki links theo query
-- `wfac_research_solution`: relate + 2–3 phương án + trade-off + test/rollback
-- `wfac_health_check`: kiểm tra anchor/index/required files
+- Tên ngắn (khuyến nghị):
+  - `get_moc`: đọc MOC (hoặc liệt kê headings)
+  - `append_memory`: append vào `01_memory/MEMORY.md`
+  - `capture_problem`: tạo problem note (FE/BE) + update `INDEX.md`
+  - `extract_lesson`: rút lesson từ problem + update lessons index
+  - `suggest_links`: gợi ý wiki links theo query
+  - `research_solution`: relate + 2–3 phương án + trade-off + test/rollback
+  - `health_check`: kiểm tra anchor/index/required files
+
+- Alias cũ (giữ tương thích):
+  - `wfac_get_moc`, `wfac_append_memory`, `wfac_capture_problem`, `wfac_extract_lesson`,
+    `wfac_suggest_links`, `wfac_research_solution`, `wfac_health_check`
 

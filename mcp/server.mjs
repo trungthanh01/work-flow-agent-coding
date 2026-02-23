@@ -548,168 +548,171 @@ async function main() {
 
   const server = createServer()
 
-  server.tool(
-    'wfac_get_moc',
-    {
-      name: z.string().default('main'),
-      heading: z.string().optional(),
-      listHeadings: z.boolean().default(false),
-      maxChars: z.number().int().min(2000).max(60000).default(20000),
-    },
-    async ({ name, heading, listHeadings, maxChars }) => {
-      const { mocRel, text } = await getMocText({ vaultRoot, name, heading, maxChars })
+  const getMocParams = {
+    name: z.string().default('main'),
+    heading: z.string().optional(),
+    listHeadings: z.boolean().default(false),
+    maxChars: z.number().int().min(2000).max(60000).default(20000),
+  }
 
-      if (listHeadings) {
-        const headings = listH2Headings(text)
-        const body = headings.length
-          ? headings.map((h) => `- ${h}`).join('\n')
-          : '- (Không tìm thấy heading dạng "## ...")'
+  async function handleGetMoc({ name, heading, listHeadings, maxChars }) {
+    const { mocRel, text } = await getMocText({ vaultRoot, name, heading, maxChars })
 
-        return {
-          content: [{ type: 'text', text: `## MOC: ${mocRel}\n\n## Headings\n${body}`.trim() }],
-        }
-      }
-
-      const header = heading?.trim()
-        ? `## MOC: ${mocRel}\n## Heading: ${heading.trim()}\n`
-        : `## MOC: ${mocRel}\n`
+    if (listHeadings) {
+      const headings = listH2Headings(text)
+      const body = headings.length
+        ? headings.map((h) => `- ${h}`).join('\n')
+        : '- (Không tìm thấy heading dạng "## ...")'
 
       return {
-        content: [{ type: 'text', text: `${header}\n${text}`.trim() }],
+        content: [{ type: 'text', text: `## MOC: ${mocRel}\n\n## Headings\n${body}`.trim() }],
       }
     }
-  )
 
-  server.tool(
-    'wfac_append_memory',
-    {
-      markdown: z.string().min(1),
-      separator: z.enum(['hr', 'none']).default('hr'),
-    },
-    async ({ markdown, separator }) => {
-      const { config } = await loadConfig({ vaultRoot })
-      const memoryRel = config?.paths?.memory?.default || '01_memory/MEMORY.md'
-      const memoryAbs = resolveFromVaultRoot(vaultRoot, memoryRel)
-      ensureInsideRepo({ vaultRoot, absPath: memoryAbs })
+    const header = heading?.trim()
+      ? `## MOC: ${mocRel}\n## Heading: ${heading.trim()}\n`
+      : `## MOC: ${mocRel}\n`
 
-      const block = separator === 'hr'
-        ? `\n\n---\n\n${markdown.trim()}\n`
-        : `\n\n${markdown.trim()}\n`
-
-      await appendTextFile(memoryAbs, block)
-
-      return {
-        content: [{ type: 'text', text: `OK: appended to ${memoryRel}` }],
-      }
+    return {
+      content: [{ type: 'text', text: `${header}\n${text}`.trim() }],
     }
-  )
+  }
 
-  server.tool(
-    'wfac_suggest_links',
-    {
-      query: z.string().min(1),
-      limit: z.number().int().min(1).max(20).default(7),
-      includeIndex: z.boolean().default(true),
-      excludeNotes: z.array(z.string()).default([]),
-    },
-    async ({ query, limit, includeIndex, excludeNotes }) => {
-      const suggestions = await suggestLinks({
-        vaultRoot,
-        query,
-        limit,
-        includeIndex,
-        excludeNoteNames: excludeNotes,
-      })
+  server.tool('get_moc', getMocParams, handleGetMoc)
+  server.tool('wfac_get_moc', getMocParams, handleGetMoc) // alias (giữ tương thích)
 
-      const lines = suggestions.map((s) => `- [[${s.note}]] (score: ${s.score})`)
-      return {
-        content: [{ type: 'text', text: lines.join('\n') }],
-      }
+  const appendMemoryParams = {
+    markdown: z.string().min(1),
+    separator: z.enum(['hr', 'none']).default('hr'),
+  }
+
+  async function handleAppendMemory({ markdown, separator }) {
+    const { config } = await loadConfig({ vaultRoot })
+    const memoryRel = config?.paths?.memory?.default || '01_memory/MEMORY.md'
+    const memoryAbs = resolveFromVaultRoot(vaultRoot, memoryRel)
+    ensureInsideRepo({ vaultRoot, absPath: memoryAbs })
+
+    const block = separator === 'hr'
+      ? `\n\n---\n\n${markdown.trim()}\n`
+      : `\n\n${markdown.trim()}\n`
+
+    await appendTextFile(memoryAbs, block)
+
+    return {
+      content: [{ type: 'text', text: `OK: appended to ${memoryRel}` }],
     }
-  )
+  }
 
-  server.tool(
-    'wfac_research_solution',
-    {
-      query: z.string().min(1),
-      limitLinks: z.number().int().min(1).max(20).default(7),
-      maxSources: z.number().int().min(1).max(5).default(3),
-      includeIndex: z.boolean().default(true),
-      excludeNotes: z.array(z.string()).default([]),
-    },
-    async ({ query, limitLinks, maxSources, includeIndex, excludeNotes }) => {
-      const suggestions = await suggestLinks({
-        vaultRoot,
-        query,
-        limit: limitLinks,
-        includeIndex,
-        excludeNoteNames: excludeNotes,
-      })
+  server.tool('append_memory', appendMemoryParams, handleAppendMemory)
+  server.tool('wfac_append_memory', appendMemoryParams, handleAppendMemory) // alias
 
-      const sources = []
-      for (const s of suggestions.slice(0, maxSources)) {
-        const abs = resolveFromVaultRoot(vaultRoot, s.relPath)
-        const text = await readSnippet(abs, 12000)
-        sources.push({ ...s, text })
-      }
+  const suggestLinksParams = {
+    query: z.string().min(1),
+    limit: z.number().int().min(1).max(20).default(7),
+    includeIndex: z.boolean().default(true),
+    excludeNotes: z.array(z.string()).default([]),
+  }
 
-      const solved = buildRelateSolveFromSources({ query, sources })
+  async function handleSuggestLinks({ query, limit, includeIndex, excludeNotes }) {
+    const suggestions = await suggestLinks({
+      vaultRoot,
+      query,
+      limit,
+      includeIndex,
+      excludeNoteNames: excludeNotes,
+    })
 
-      const linksList = suggestions
-        .map((s) => `- [[${s.note}]] (score: ${s.score})`)
-        .join('\n')
-
-      const body = [
-        '## Relate (notes liên quan)',
-        linksList || '- (Không tìm thấy note liên quan)',
-        '',
-        '## Solve (phương án + trade-off)',
-        solved.optionsMarkdown,
-        '',
-        '## Khuyến nghị',
-        solved.recommendationMarkdown,
-        '',
-        '## Test plan (gợi ý)',
-        solved.testPlanMarkdown,
-        '',
-        '## Rollback plan (gợi ý)',
-        solved.rollbackMarkdown,
-      ].join('\n')
-
-      return {
-        content: [{ type: 'text', text: body }],
-      }
+    const lines = suggestions.map((s) => `- [[${s.note}]] (score: ${s.score})`)
+    return {
+      content: [{ type: 'text', text: lines.join('\n') }],
     }
-  )
+  }
 
-  server.tool(
-    'wfac_capture_problem',
-    {
-      area: z.enum(['frontend', 'backend']),
-      repo: z.string().min(1),
-      title: z.string().min(1),
-      status: z.string().default('draft'),
-      tags: z.array(z.string()).default([]),
-      created: z.string().optional(), // yyyy-mm-dd
-      summary: z.string().optional(),
-      symptoms: z.string().optional(),
-      context: z.string().optional(),
-      diagnosis: z.string().optional(),
-      rootCause: z.string().optional(),
-      goal: z.string().optional(),
-      options: z.string().optional(),
-      recommendation: z.string().optional(),
-      fix: z.string().optional(),
-      prevention: z.string().optional(),
-      testPlan: z.string().optional(),
-      rollbackPlan: z.string().optional(),
-      evidence: z.string().optional(),
-      links: z.string().optional(),
-      slug: z.string().optional(),
-      autoSolve: z.boolean().default(true),
-      includeTransclusion: z.boolean().optional(),
-    },
-    async (args) => {
+  server.tool('suggest_links', suggestLinksParams, handleSuggestLinks)
+  server.tool('wfac_suggest_links', suggestLinksParams, handleSuggestLinks) // alias
+
+  const researchSolutionParams = {
+    query: z.string().min(1),
+    limitLinks: z.number().int().min(1).max(20).default(7),
+    maxSources: z.number().int().min(1).max(5).default(3),
+    includeIndex: z.boolean().default(true),
+    excludeNotes: z.array(z.string()).default([]),
+  }
+
+  async function handleResearchSolution({ query, limitLinks, maxSources, includeIndex, excludeNotes }) {
+    const suggestions = await suggestLinks({
+      vaultRoot,
+      query,
+      limit: limitLinks,
+      includeIndex,
+      excludeNoteNames: excludeNotes,
+    })
+
+    const sources = []
+    for (const s of suggestions.slice(0, maxSources)) {
+      const abs = resolveFromVaultRoot(vaultRoot, s.relPath)
+      const text = await readSnippet(abs, 12000)
+      sources.push({ ...s, text })
+    }
+
+    const solved = buildRelateSolveFromSources({ query, sources })
+
+    const linksList = suggestions
+      .map((s) => `- [[${s.note}]] (score: ${s.score})`)
+      .join('\n')
+
+    const body = [
+      '## Relate (notes liên quan)',
+      linksList || '- (Không tìm thấy note liên quan)',
+      '',
+      '## Solve (phương án + trade-off)',
+      solved.optionsMarkdown,
+      '',
+      '## Khuyến nghị',
+      solved.recommendationMarkdown,
+      '',
+      '## Test plan (gợi ý)',
+      solved.testPlanMarkdown,
+      '',
+      '## Rollback plan (gợi ý)',
+      solved.rollbackMarkdown,
+    ].join('\n')
+
+    return {
+      content: [{ type: 'text', text: body }],
+    }
+  }
+
+  server.tool('research_solution', researchSolutionParams, handleResearchSolution)
+  server.tool('wfac_research_solution', researchSolutionParams, handleResearchSolution) // alias
+
+  const captureProblemParams = {
+    area: z.enum(['frontend', 'backend']),
+    repo: z.string().min(1),
+    title: z.string().min(1),
+    status: z.string().default('draft'),
+    tags: z.array(z.string()).default([]),
+    created: z.string().optional(), // yyyy-mm-dd
+    summary: z.string().optional(),
+    symptoms: z.string().optional(),
+    context: z.string().optional(),
+    diagnosis: z.string().optional(),
+    rootCause: z.string().optional(),
+    goal: z.string().optional(),
+    options: z.string().optional(),
+    recommendation: z.string().optional(),
+    fix: z.string().optional(),
+    prevention: z.string().optional(),
+    testPlan: z.string().optional(),
+    rollbackPlan: z.string().optional(),
+    evidence: z.string().optional(),
+    links: z.string().optional(),
+    slug: z.string().optional(),
+    autoSolve: z.boolean().default(true),
+    includeTransclusion: z.boolean().optional(),
+  }
+
+  async function handleCaptureProblem(args) {
       const { config } = await loadConfig({ vaultRoot })
       const created = args.created?.trim() || toIsoDateString(new Date())
 
@@ -875,24 +878,25 @@ async function main() {
       return {
         content: [{ type: 'text', text: `OK: created [[${noteName}]] and updated INDEX.md` }],
       }
-    }
-  )
+  }
 
-  server.tool(
-    'wfac_extract_lesson',
-    {
-      problemNote: z.string().min(1), // note name (no .md) OR relative path to .md
-      repo: z.string().min(1),
-      area: z.enum(['frontend', 'backend']).optional(),
-      created: z.string().optional(),
-      status: z.string().default('draft'),
-      evidence: z.string().optional(),
-      lesson: z.string().optional(),
-      signals: z.array(z.string()).default([]),
-      guardrails: z.array(z.string()).default([]),
-      checks: z.array(z.string()).default([]),
-    },
-    async (args) => {
+  server.tool('capture_problem', captureProblemParams, handleCaptureProblem)
+  server.tool('wfac_capture_problem', captureProblemParams, handleCaptureProblem) // alias
+
+  const extractLessonParams = {
+    problemNote: z.string().min(1), // note name (no .md) OR relative path to .md
+    repo: z.string().min(1),
+    area: z.enum(['frontend', 'backend']).optional(),
+    created: z.string().optional(),
+    status: z.string().default('draft'),
+    evidence: z.string().optional(),
+    lesson: z.string().optional(),
+    signals: z.array(z.string()).default([]),
+    guardrails: z.array(z.string()).default([]),
+    checks: z.array(z.string()).default([]),
+  }
+
+  async function handleExtractLesson(args) {
       const { config } = await loadConfig({ vaultRoot })
       const created = args.created?.trim() || toIsoDateString(new Date())
 
@@ -1007,20 +1011,22 @@ async function main() {
       return {
         content: [{ type: 'text', text: `OK: created [[${lessonName}]] and updated 04_lessons/INDEX.md` }],
       }
-    }
-  )
+  }
 
-  server.tool(
-    'wfac_health_check',
-    {},
-    async () => {
-      const errors = await runHealthCheck({ vaultRoot })
-      if (errors.length === 0) {
-        return { content: [{ type: 'text', text: 'Health check: OK' }] }
-      }
-      return { content: [{ type: 'text', text: `Health check: FAILED\n- ${errors.join('\n- ')}` }] }
-    }
-  )
+  server.tool('extract_lesson', extractLessonParams, handleExtractLesson)
+  server.tool('wfac_extract_lesson', extractLessonParams, handleExtractLesson) // alias
+
+  const healthCheckParams = {}
+
+  async function handleHealthCheck() {
+    const errors = await runHealthCheck({ vaultRoot })
+    if (errors.length === 0)
+      return { content: [{ type: 'text', text: 'Health check: OK' }] }
+    return { content: [{ type: 'text', text: `Health check: FAILED\n- ${errors.join('\n- ')}` }] }
+  }
+
+  server.tool('health_check', healthCheckParams, handleHealthCheck)
+  server.tool('wfac_health_check', healthCheckParams, handleHealthCheck) // alias
 
   const transport = new StdioServerTransport()
   await server.connect(transport)
